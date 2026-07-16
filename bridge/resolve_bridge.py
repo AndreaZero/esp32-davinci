@@ -18,17 +18,42 @@ except ImportError:
 
 # Action ID → AppleScript fragment inside System Events (after Resolve is focused)
 # Preset: DaVinci Resolve default (Mac)
+# F-keys: macOS key codes — F9=101, F10=109, F11=103 (may need Fn on some keyboards)
 SHORTCUTS: dict[str, str] = {
+    # Cut
     "CUT": 'keystroke "b" using command down',
-    "PLAY": 'keystroke space',
     "UNDO": 'keystroke "z" using command down',
     "REDO": 'keystroke "z" using {command down, shift down}',
-    # Forward Delete = key code 117; Shift+Delete = Ripple Delete in Resolve
-    "RIPPLE_DEL": "key code 117 using shift down",
+    "RIPPLE_DEL": "key code 117 using shift down",  # Shift+Fwd Delete
+    "DEL": "key code 117",  # Forward Delete
+    "SPLIT": "key code 42 using command down",  # Cmd+\
+    "SAVE": 'keystroke "s" using command down',
+    # Transport
+    "PLAY": "keystroke space",
+    "JK_BACK": 'keystroke "j"',
+    "JK_STOP": 'keystroke "k"',
+    "JK_FWD": 'keystroke "l"',
+    "FIT": 'keystroke "z" using shift down',
+    "SNAP": 'keystroke "n"',
+    # Tools
+    "SELECT_TOOL": 'keystroke "a"',
+    "TRIM_TOOL": 'keystroke "t"',
+    "BLADE_TOOL": 'keystroke "b"',
     "MARK_IN": 'keystroke "i"',
     "MARK_OUT": 'keystroke "o"',
-    "SAVE": 'keystroke "s" using command down',
-    "PING": "",  # no keystroke — ACK only
+    "INSERT": "key code 101",  # F9
+    "OVERWRITE": "key code 109",  # F10
+    "REPLACE": "key code 103",  # F11
+    # Pages (Shift+1 … Shift+7)
+    "PAGE_MEDIA": 'keystroke "1" using shift down',
+    "PAGE_CUT": 'keystroke "2" using shift down',
+    "PAGE_EDIT": 'keystroke "3" using shift down',
+    "PAGE_FUSION": 'keystroke "4" using shift down',
+    "PAGE_COLOR": 'keystroke "5" using shift down',
+    "PAGE_FAIRLIGHT": 'keystroke "6" using shift down',
+    "PAGE_DELIVER": 'keystroke "7" using shift down',
+    # Meta
+    "PING": "",
 }
 
 # Bootloader / noise lines from ESP32 after USB open — ignore
@@ -114,7 +139,6 @@ def open_serial(port: str, baud: int) -> serial.Serial:
     ser.dsrdtr = False
     ser.rtscts = False
     ser.open()
-    # Explicitly deassert after open (some drivers still pulse on open)
     try:
         ser.setDTR(False)
         ser.setRTS(False)
