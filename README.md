@@ -2,24 +2,27 @@
 
 Touch control deck for **DaVinci Resolve** on macOS. Runs on an **Elecrow CrowPanel ESP32-S3** 7″ (800×480): cut, transport, tools, color nodes, markers, page switching.
 
-The panel talks to a small **Python bridge** over USB serial. The bridge injects keyboard shortcuts into Resolve.
+The panel talks to a **Mac bridge** over USB serial. The bridge injects Resolve keyboard shortcuts (Quartz key events).
 
 | | |
 | --- | --- |
 | Firmware | `0.5.1` |
 | Hardware | CrowPanel ESP32-S3 HMI 7″, 800×480 |
-| Host | macOS + DaVinci Resolve |
+| Host | macOS + DaVinci Resolve (Free or Studio) |
 
 ## How it works
 
 ```
 CrowPanel (LVGL UI)
-    │  USB-CDC serial @ 115200
+    │  USB–UART serial @ 115200
     ▼
-Mac bridge (resolve_bridge.py) ─► keyboard shortcuts → Resolve
+Mac bridge (menu bar app or CLI)
+    │  Quartz key events (Accessibility)
+    ▼
+DaVinci Resolve
 ```
 
-The CrowPanel USB port is **UART only** (not USB HID). Native keyboard emulation is not possible on this board; the bridge is required.
+The CrowPanel USB port is **UART only** (not USB HID). GPIO 19/20 are used for touch I2C, so the board cannot enumerate as a keyboard. The Mac bridge is required.
 
 ## Quick start
 
@@ -33,29 +36,28 @@ The CrowPanel USB port is **UART only** (not USB HID). Native keyboard emulation
 
 Details: [docs/hardware.md](./docs/hardware.md).
 
-### 2. Bridge (macOS)
-
-**Option A — desktop / menu bar app (recommended)**
+### 2. Mac bridge (recommended: menu bar app)
 
 ```bash
 cd mac-app
 pip3 install -r requirements.txt
 python3 app.py
-# or build: chmod +x build.sh && ./build.sh
+# or package: chmod +x build.sh && ./build.sh
 # then: open dist/ESP32-DaVinci-Bridge.app
 ```
 
-Start/stop from the window or the menu bar (**DV** / **DV●**). Closing the window keeps the app in the menu bar. Optionally **Open at Mac login**.
+- Start/stop from the window or menu bar (**DV** / **DV●**)
+- Closing the window hides to the menu bar (Quit only from the menu)
+- Grant **Accessibility** to the app (or to Terminal/Python if running from source)
+- Keep Resolve open; keyboard preset: **DaVinci Resolve** (default)
 
-**Option B — CLI**
+Optional CLI:
 
 ```bash
 cd bridge
 pip3 install -r requirements.txt
 python3 resolve_bridge.py -p /dev/cu.usbserial-XXXX
 ```
-
-Grant **Accessibility** (System Settings → Privacy) to the app, or to Terminal/Python if using the CLI. Keep Resolve open.
 
 Details: [mac-app/README.md](./mac-app/README.md), [docs/bridge-and-status.md](./docs/bridge-and-status.md).
 
@@ -64,17 +66,27 @@ Details: [mac-app/README.md](./mac-app/README.md), [docs/bridge-and-status.md](.
 - Tabs: **CUT · PLAY · TOOLS · COL · PAGE**
 - All buttons send shortcuts immediately (no SAFE/ARMED)
 
+## Repository layout
+
+| Path | Role |
+| --- | --- |
+| `esp32-davinci.ino`, `ui_deck.*`, `serial_proto.*`, … | Firmware |
+| `bridge/` | Serial host + Quartz shortcut injection |
+| `mac-app/` | Desktop / menu bar controller + `.app` build |
+| `docs/` | Project documentation (English) |
+
 ## Documentation
 
 | Doc | Contents |
 | --- | --- |
 | [docs/architecture.md](./docs/architecture.md) | System design |
 | [docs/hardware.md](./docs/hardware.md) | Board, pins, Arduino tools |
-| [docs/protocol.md](./docs/protocol.md) | Serial CMD / ACK / INFO |
+| [docs/protocol.md](./docs/protocol.md) | Serial CMD / ACK / STAT |
 | [docs/ui.md](./docs/ui.md) | Touch UI layout |
 | [docs/actions.md](./docs/actions.md) | Action IDs and Mac shortcuts |
-| [docs/bridge-and-status.md](./docs/bridge-and-status.md) | Mac bridge setup |
-| [mac-app/README.md](./mac-app/README.md) | Desktop app / DMG build |
+| [docs/bridge-and-status.md](./docs/bridge-and-status.md) | Mac bridge + Accessibility |
+| [mac-app/README.md](./mac-app/README.md) | Menu bar app / DMG |
+| [bridge/README.md](./bridge/README.md) | CLI bridge |
 
 ## License
 

@@ -4,7 +4,7 @@
 
 Elecrow **CrowPanel** ESP32-S3 HMI **7″**, **800×480** RGB panel, capacitive touch (GT911), USB–UART for flash and serial.
 
-Display/touch stack matches the companion CrowPanel Sony remote project patterns: LovyanGFX RGB bus + LVGL 8.3.
+Display/touch stack: LovyanGFX RGB bus + LVGL 8.3.
 
 ## Pin / config (`config.h`)
 
@@ -16,6 +16,8 @@ Display/touch stack matches the companion CrowPanel Sony remote project patterns
 | Firmware version | `FW_VERSION` in `config.h` (currently `0.5.1`) |
 
 RGB panel pinout: see `LovyanGFX_Driver.h`.
+
+USB on this board is **UART only** (not native USB HID). See [architecture.md](./architecture.md).
 
 ## Arduino IDE — Tools
 
@@ -41,8 +43,10 @@ esp32 board package: prefer a stable **3.2.x** or a **3.3.x** known to build wit
 
 ## Flashing tips
 
-1. Quit the Python bridge and Serial Monitor (same port).
+1. Quit the Mac bridge (menu bar → **Quit**) and Serial Monitor — they hold the same port.
 2. Use Upload Speed **115200**.
 3. If upload dies mid-app: **Erase Flash → All Flash Contents**, hold **BOOT** for the whole upload.
 4. Incomplete flash leaves a boot loop (`No bootable app partitions`). Re-flash completely before running the bridge.
 5. Start the bridge only after the UI is up.
+
+Typical serial device name: `/dev/cu.usbserial-XXXX` (e.g. `usbserial-210`).

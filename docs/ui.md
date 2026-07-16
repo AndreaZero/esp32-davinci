@@ -6,7 +6,7 @@
 
 | Zone | Height | Content |
 | --- | --- | --- |
-| Header | ~56 px | Title, Last CMD, transport badge (STOP / PLAYING / REV), USB status, PING |
+| Header | ~56 px | Title, Last CMD, transport badge (STOP / PLAYING / REV), USB / bridge status, PING |
 | Content | ~360 px | Active tab |
 | Tab bar | ~64 px | CUT · PLAY · TOOLS · COL · PAGE |
 
@@ -14,7 +14,7 @@ All actions are always enabled (no SAFE/ARMED lock).
 
 ### Transport badge (local UX)
 
-Updated from deck buttons only (not synced from Resolve keyboard):
+Updated from deck buttons only (not synced from Resolve’s playhead):
 
 | Control | Badge / PLAY button |
 | --- | --- |
@@ -38,9 +38,10 @@ Updated from deck buttons only (not synced from Resolve keyboard):
 ## Feedback
 
 - Pressed button state (lighten)
-- CMD → amber “sent” → green ACK (~800 ms) → **USB: ready**
+- CMD → amber “sent” → green ACK (~800 ms) → ready status
 - ERR in red
 - Debounce 200 ms
+- `STAT:BRIDGE_ONLINE` / `STAT:BRIDGE_OFF` from the Mac host update USB/bridge status
 
 ## Palette
 

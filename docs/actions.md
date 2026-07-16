@@ -3,6 +3,8 @@
 Preset assumed: **DaVinci Resolve** (default), **macOS**.  
 Verify in Resolve → **Keyboard Customization** (⌘⌥K).
 
+Canonical map: `bridge/inject_keys.py` (`CHORDS` — virtual key codes + modifiers).
+
 ## Cut
 
 | ID | UI | Mac shortcut |
@@ -10,7 +12,7 @@ Verify in Resolve → **Keyboard Customization** (⌘⌥K).
 | `CUT` | CUT | ⌘B |
 | `UNDO` | UNDO | ⌘Z |
 | `REDO` | REDO | ⇧⌘Z |
-| `RIPPLE_DEL` | RIPPLE DEL | ⇧Delete |
+| `RIPPLE_DEL` | RIPPLE DEL | ⇧Forward Delete |
 | `DEL` | DEL | Forward Delete |
 | `SPLIT` | SPLIT | ⌘\ |
 | `SAVE` | SAVE | ⌘S |
@@ -72,10 +74,10 @@ Verify in Resolve → **Keyboard Customization** (⌘⌥K).
 
 ⇧1 = Project Manager, ⇧9 = Project Settings (not on the deck).
 
+Page shortcuts use **key codes** for digit keys with Shift (not typing `!` / `@` via character keystrokes).
+
 ## Meta
 
 | ID | Notes |
 | --- | --- |
-| `PING` | ACK only (bridge connectivity test) |
-
-Mappings live in `bridge/resolve_bridge.py` (`SHORTCUTS`). Page keys use AppleScript **key codes** with Shift (not `keystroke "1" using shift`, which types `!` on macOS).
+| `PING` | ACK only (bridge connectivity test; no keystroke) |
