@@ -1,7 +1,7 @@
 #include "serial_proto.h"
 
 static SerialProtoStatusCb s_status_cb = nullptr;
-static char s_rx_line[96];
+static char s_rx_line[128];
 static size_t s_rx_len = 0;
 
 void serial_proto_set_status_cb(SerialProtoStatusCb cb) {
@@ -27,7 +27,6 @@ static void handle_rx_line(const char *line) {
   if (!line || !line[0]) {
     return;
   }
-  // Accept ACK:/ERR:/STAT: for UI feedback
   if (strncmp(line, "ACK:", 4) == 0 || strncmp(line, "ERR:", 4) == 0 ||
       strncmp(line, "STAT:", 5) == 0) {
     if (s_status_cb) {
@@ -51,7 +50,7 @@ void serial_proto_loop() {
     if (s_rx_len + 1 < sizeof(s_rx_line)) {
       s_rx_line[s_rx_len++] = c;
     } else {
-      s_rx_len = 0;  // overflow → drop line
+      s_rx_len = 0;
     }
   }
 }

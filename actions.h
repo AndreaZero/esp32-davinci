@@ -1,13 +1,55 @@
 #pragma once
 
-// Action IDs sent as CMD:<id> over USB serial (see docs/01-architettura.md)
+// Action IDs sent as CMD:<id> over USB serial (see docs/actions.md)
 
+// Cut
 #define ACTION_CUT         "CUT"
-#define ACTION_PLAY        "PLAY"
 #define ACTION_UNDO        "UNDO"
 #define ACTION_REDO        "REDO"
 #define ACTION_RIPPLE_DEL  "RIPPLE_DEL"
+#define ACTION_DEL         "DEL"
+#define ACTION_SPLIT       "SPLIT"
+#define ACTION_SAVE        "SAVE"
+
+// Transport
+#define ACTION_PLAY        "PLAY"
+#define ACTION_JK_BACK     "JK_BACK"
+#define ACTION_JK_STOP     "JK_STOP"
+#define ACTION_JK_FWD      "JK_FWD"
+#define ACTION_FIT         "FIT"
+#define ACTION_SNAP        "SNAP"
+
+// Tools
+#define ACTION_SELECT_TOOL "SELECT_TOOL"
+#define ACTION_TRIM_TOOL   "TRIM_TOOL"
+#define ACTION_BLADE_TOOL  "BLADE_TOOL"
 #define ACTION_MARK_IN     "MARK_IN"
 #define ACTION_MARK_OUT    "MARK_OUT"
-#define ACTION_SAVE        "SAVE"
-#define ACTION_PING        "PING"
+#define ACTION_INSERT      "INSERT"
+#define ACTION_OVERWRITE   "OVERWRITE"
+#define ACTION_REPLACE     "REPLACE"
+
+// Color (Resolve Color page shortcuts)
+#define ACTION_COLOR_ADD_SERIAL   "COLOR_ADD_SERIAL"
+#define ACTION_COLOR_ADD_PARALLEL "COLOR_ADD_PARALLEL"
+#define ACTION_COLOR_ADD_LAYER    "COLOR_ADD_LAYER"
+#define ACTION_COLOR_BYPASS_NODE  "COLOR_BYPASS_NODE"
+#define ACTION_COLOR_BYPASS_ALL   "COLOR_BYPASS_ALL"
+#define ACTION_COLOR_RESET_NODE   "COLOR_RESET_NODE"
+
+// Markers
+#define ACTION_MARKER_ADD  "MARKER_ADD"
+#define ACTION_MARKER_NEXT "MARKER_NEXT"
+#define ACTION_MARKER_PREV "MARKER_PREV"
+
+// Pages
+#define ACTION_PAGE_MEDIA     "PAGE_MEDIA"
+#define ACTION_PAGE_CUT       "PAGE_CUT"
+#define ACTION_PAGE_EDIT      "PAGE_EDIT"
+#define ACTION_PAGE_FUSION    "PAGE_FUSION"
+#define ACTION_PAGE_COLOR     "PAGE_COLOR"
+#define ACTION_PAGE_FAIRLIGHT "PAGE_FAIRLIGHT"
+#define ACTION_PAGE_DELIVER   "PAGE_DELIVER"
+
+// Meta
+#define ACTION_PING "PING"

@@ -1,6 +1,6 @@
 #pragma once
 
-#define FW_VERSION "0.1.0"
+#define FW_VERSION "0.5.1"
 
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 480

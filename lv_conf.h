@@ -75,7 +75,7 @@
    FONTS
  *====================*/
 #define LV_FONT_MONTSERRAT_14 1
-#define LV_FONT_MONTSERRAT_16 0
+#define LV_FONT_MONTSERRAT_16 1
 #define LV_FONT_MONTSERRAT_18 0
 #define LV_FONT_MONTSERRAT_20 1
 #define LV_FONT_MONTSERRAT_22 1
@@ -146,7 +146,7 @@
 #define LV_USE_SPAN       0
 #define LV_USE_SPINBOX    0
 #define LV_USE_SPINNER    0
-#define LV_USE_TABVIEW    0
+#define LV_USE_TABVIEW    1
 #define LV_USE_TILEVIEW   0
 #define LV_USE_WIN        0
 
