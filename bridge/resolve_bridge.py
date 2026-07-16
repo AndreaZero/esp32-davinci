@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""ESP32-DaVinci Mac bridge: USB serial CMD:* → DaVinci Resolve keyboard shortcuts."""
+"""ESP32-DaVinci Mac bridge: USB serial CMD:* → shortcuts + INFO:* from Resolve API."""
 
 from __future__ import annotations
 
@@ -16,48 +16,42 @@ except ImportError:
     print("Missing pyserial. Install with:  pip3 install pyserial", file=sys.stderr)
     sys.exit(1)
 
+from resolve_api import ResolveApi
+
 # Action ID → AppleScript fragment inside System Events (after Resolve is focused)
 # Preset: DaVinci Resolve default (Mac)
-# F-keys: macOS key codes — F9=101, F10=109, F11=103 (may need Fn on some keyboards)
 SHORTCUTS: dict[str, str] = {
-    # Cut
     "CUT": 'keystroke "b" using command down',
     "UNDO": 'keystroke "z" using command down',
     "REDO": 'keystroke "z" using {command down, shift down}',
-    "RIPPLE_DEL": "key code 117 using shift down",  # Shift+Fwd Delete
-    "DEL": "key code 117",  # Forward Delete
-    "SPLIT": "key code 42 using command down",  # Cmd+\
+    "RIPPLE_DEL": "key code 117 using shift down",
+    "DEL": "key code 117",
+    "SPLIT": "key code 42 using command down",
     "SAVE": 'keystroke "s" using command down',
-    # Transport
     "PLAY": "keystroke space",
     "JK_BACK": 'keystroke "j"',
     "JK_STOP": 'keystroke "k"',
     "JK_FWD": 'keystroke "l"',
     "FIT": 'keystroke "z" using shift down',
     "SNAP": 'keystroke "n"',
-    # Tools
     "SELECT_TOOL": 'keystroke "a"',
     "TRIM_TOOL": 'keystroke "t"',
     "BLADE_TOOL": 'keystroke "b"',
     "MARK_IN": 'keystroke "i"',
     "MARK_OUT": 'keystroke "o"',
-    "INSERT": "key code 101",  # F9
-    "OVERWRITE": "key code 109",  # F10
-    "REPLACE": "key code 103",  # F11
-    # Pages — must use key code (keystroke "1" using shift = types "!" on Mac)
-    # Default Resolve preset: Shift+2…Shift+8 (Media…Deliver). Verify in ⌘⌥K.
-    "PAGE_MEDIA": "key code 19 using shift down",      # Shift+2
-    "PAGE_CUT": "key code 20 using shift down",        # Shift+3
-    "PAGE_EDIT": "key code 21 using shift down",       # Shift+4
-    "PAGE_FUSION": "key code 23 using shift down",     # Shift+5
-    "PAGE_COLOR": "key code 22 using shift down",      # Shift+6
-    "PAGE_FAIRLIGHT": "key code 26 using shift down",  # Shift+7
-    "PAGE_DELIVER": "key code 28 using shift down",    # Shift+8
-    # Meta
+    "INSERT": "key code 101",
+    "OVERWRITE": "key code 109",
+    "REPLACE": "key code 103",
+    "PAGE_MEDIA": "key code 19 using shift down",
+    "PAGE_CUT": "key code 20 using shift down",
+    "PAGE_EDIT": "key code 21 using shift down",
+    "PAGE_FUSION": "key code 23 using shift down",
+    "PAGE_COLOR": "key code 22 using shift down",
+    "PAGE_FAIRLIGHT": "key code 26 using shift down",
+    "PAGE_DELIVER": "key code 28 using shift down",
     "PING": "",
 }
 
-# Bootloader / noise lines from ESP32 after USB open — ignore
 _IGNORE_PREFIXES = (
     "ESP-ROM:",
     "Build:",
@@ -74,6 +68,11 @@ _IGNORE_PREFIXES = (
     "PSRAM:",
     "    ",
 )
+
+# Live TC while playing — ~10 Hz over serial
+INFO_INTERVAL_S = 0.1
+# Console log throttle (serial still sends every INFO tick)
+INFO_LOG_INTERVAL_S = 1.0
 
 
 def focus_resolve() -> None:
@@ -131,11 +130,10 @@ def guess_port() -> str | None:
 
 
 def open_serial(port: str, baud: int) -> serial.Serial:
-    """Open without toggling DTR/RTS (avoids ESP32 reset + macOS port drop)."""
     ser = serial.Serial()
     ser.port = port
     ser.baudrate = baud
-    ser.timeout = 0.2
+    ser.timeout = 0.05
     ser.write_timeout = 1.0
     ser.dsrdtr = False
     ser.rtscts = False
@@ -187,13 +185,32 @@ def handle_line(line: str, write: Callable[[str], None]) -> None:
         print(f">> ERR:{action}:{detail}")
 
 
-def run_session(port: str, baud: int) -> None:
+def run_session(port: str, baud: int, api: ResolveApi, no_info: bool) -> None:
     ser = open_serial(port, baud)
     print(f"Connected {port} @ {baud}")
     safe_write(ser, "STAT:BRIDGE_ONLINE\n")
     buf = ""
+    last_info = ""
+    next_info_t = 0.0
+    next_log_t = 0.0
     try:
         while True:
+            now = time.monotonic()
+            if not no_info and now >= next_info_t:
+                next_info_t = now + INFO_INTERVAL_S
+                status = api.get_status()
+                line = status.to_info_line()
+                # Always push INFO (live TC); log only on change or ~1 Hz
+                safe_write(ser, line + "\n")
+                if line != last_info or now >= next_log_t:
+                    last_info = line
+                    next_log_t = now + INFO_LOG_INTERVAL_S
+                    print(f">> {line}")
+            elif no_info and now >= next_info_t:
+                # Heartbeat so panel detects bridge alive without API
+                next_info_t = now + 0.5
+                safe_write(ser, "STAT:HB\n")
+
             try:
                 chunk = ser.read(256)
             except serial.SerialException as exc:
@@ -209,8 +226,13 @@ def run_session(port: str, baud: int) -> None:
 
                     handle_line(line, _w)
             else:
-                time.sleep(0.01)
+                time.sleep(0.005)
     finally:
+        try:
+            safe_write(ser, "STAT:BRIDGE_OFF\n")
+            time.sleep(0.05)
+        except Exception:
+            pass
         try:
             ser.close()
         except Exception:
@@ -218,10 +240,11 @@ def run_session(port: str, baud: int) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="ESP32-DaVinci → Resolve shortcut bridge")
+    ap = argparse.ArgumentParser(description="ESP32-DaVinci → Resolve bridge")
     ap.add_argument("-p", "--port", help="Serial port (default: auto)")
     ap.add_argument("-b", "--baud", type=int, default=115200)
     ap.add_argument("--no-focus", action="store_true", help="Do not activate Resolve")
+    ap.add_argument("--no-info", action="store_true", help="Disable Resolve API INFO poll")
     args = ap.parse_args()
 
     if args.no_focus:
@@ -229,6 +252,16 @@ def main() -> int:
 
         def focus_resolve() -> None:  # type: ignore[no-redef]
             return
+
+    api = ResolveApi()
+    if not args.no_info:
+        if api.connect():
+            print("Resolve API: connected")
+        else:
+            print(
+                f"Resolve API: not ready ({api.last_error}). "
+                "Will retry. Check Studio + External Scripting = Local."
+            )
 
     print("macOS: allow Terminal/Python under Privacy → Accessibility")
     print("Chiudi Serial Monitor Arduino. Solo questo bridge sulla porta.")
@@ -242,7 +275,7 @@ def main() -> int:
                 time.sleep(2)
                 continue
             try:
-                run_session(port, args.baud)
+                run_session(port, args.baud, api, args.no_info)
             except KeyboardInterrupt:
                 raise
             except (serial.SerialException, OSError, ConnectionError) as exc:
