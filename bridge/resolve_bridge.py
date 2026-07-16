@@ -44,14 +44,15 @@ SHORTCUTS: dict[str, str] = {
     "INSERT": "key code 101",  # F9
     "OVERWRITE": "key code 109",  # F10
     "REPLACE": "key code 103",  # F11
-    # Pages (Shift+1 … Shift+7)
-    "PAGE_MEDIA": 'keystroke "1" using shift down',
-    "PAGE_CUT": 'keystroke "2" using shift down',
-    "PAGE_EDIT": 'keystroke "3" using shift down',
-    "PAGE_FUSION": 'keystroke "4" using shift down',
-    "PAGE_COLOR": 'keystroke "5" using shift down',
-    "PAGE_FAIRLIGHT": 'keystroke "6" using shift down',
-    "PAGE_DELIVER": 'keystroke "7" using shift down',
+    # Pages — must use key code (keystroke "1" using shift = types "!" on Mac)
+    # Default Resolve preset: Shift+2…Shift+8 (Media…Deliver). Verify in ⌘⌥K.
+    "PAGE_MEDIA": "key code 19 using shift down",      # Shift+2
+    "PAGE_CUT": "key code 20 using shift down",        # Shift+3
+    "PAGE_EDIT": "key code 21 using shift down",       # Shift+4
+    "PAGE_FUSION": "key code 23 using shift down",     # Shift+5
+    "PAGE_COLOR": "key code 22 using shift down",      # Shift+6
+    "PAGE_FAIRLIGHT": "key code 26 using shift down",  # Shift+7
+    "PAGE_DELIVER": "key code 28 using shift down",    # Shift+8
     # Meta
     "PING": "",
 }

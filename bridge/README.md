@@ -39,7 +39,7 @@ python3 resolve_bridge.py -p /dev/cu.usbserial-210
 | SELECT_TOOL / TRIM_TOOL / BLADE_TOOL | A / T / B |
 | MARK_IN / MARK_OUT | I / O |
 | INSERT / OVERWRITE / REPLACE | F9 / F10 / F11 |
-| PAGE_MEDIA … PAGE_DELIVER | ⇧1 … ⇧7 |
+| PAGE_MEDIA … PAGE_DELIVER | ⇧2 … ⇧8 |
 | PING | solo ACK |
 
 Preset tastiera Resolve: **DaVinci Resolve** default.
